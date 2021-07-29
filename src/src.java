@@ -4,10 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner; // Import the Scanner class to read text files
+import java.util.Set;
 
 // Code base on INF600H_TP1 
 public class src {
@@ -18,7 +19,10 @@ public class src {
             "P.M.", "A.D.", "a.d.", "B.C.E.", "C.E.", "i.e.", "etc.", "e.g.", "al." };
 
     private static ArrayList<String> setences = new ArrayList<>();
-    private static Map<Integer, ArrayList<String>> setenceWordDictionary = new HashMap<Integer, ArrayList<String>>();
+    private static Map<Integer, ArrayList<String>> setenceWordDictionary = new HashMap<>();
+    private static Map<Integer, ArrayList<String>> resumeSetenceDictionary = new HashMap<>();
+    private static int maxWord = 125;
+    private static double lambda = 0.5;
     public static void main(String[] args) throws FileNotFoundException {
         Scanner myObj = new Scanner(System.in); // Create a Scanner object
         System.out.println("Enter file to analyse ex (eval.txt):");
@@ -33,10 +37,92 @@ public class src {
 
         setenceWordDictionary =  GetSetenceWordDictionary(setencesDictionary);
 
+        GetSetenceForResume();
+
+        ArrayList<String> resume = GetResume(setencesDictionary);
+
+        WriteResume(resume, files);
         /// Algo principale reste a etre implemente 
 
     }
 
+    public static void WriteResume(ArrayList<String> resume, String files) {
+
+        try {
+            
+            File myObj = new File(files + "_r.txt");
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+
+            FileWriter myWriter = new FileWriter(myObj);
+            
+            for (String setence : resume) {
+                myWriter.write(setence + "\n");
+            }
+
+            myWriter.close();
+
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<String> GetResume( Map<Integer, String> setencesDictionary){
+        ArrayList<String> resume = new ArrayList<>();
+
+        Set<Integer> temp = resumeSetenceDictionary.keySet(); 
+
+        while(!temp.isEmpty())
+        {
+            int min = Integer.MAX_VALUE;
+            for (Integer integer : temp) {
+                if(integer < min){
+                    min = integer;
+                }
+            }
+            resume.add(setencesDictionary.get(min));
+            temp.remove(min);
+        }
+
+        return resume;
+    }
+
+
+    public static void GetSetenceForResume(){
+        while (maxWord > 0){
+            if(resumeSetenceDictionary.size() == 0){
+                double max = Double.NEGATIVE_INFINITY;
+                int index = 0;
+                for(int i = 1; i < setenceWordDictionary.size(); i++){
+                    double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(1));
+                    if(score > max){
+                        max = score;
+                        index = i; 
+                    }
+                }
+                resumeSetenceDictionary.put(index, setenceWordDictionary.get(index));
+                maxWord -= setenceWordDictionary.get(index).size();
+            }else{
+                double max = Double.NEGATIVE_INFINITY;
+                int index = 0;
+                for(int i = 1; i < setenceWordDictionary.size(); i++){
+                    if(resumeSetenceDictionary.get(i) == null){
+                        double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(1)) - (1-lambda) * MaxSim(setenceWordDictionary.get(i), resumeSetenceDictionary.values());
+                        if(score > max){
+                            max = score;
+                            index = i;
+                        }
+                    }    
+                }
+                resumeSetenceDictionary.put(index, setenceWordDictionary.get(index));
+                maxWord -= setenceWordDictionary.get(index).size();
+            }
+        }
+    }
 
     // Set dictionary of setences 
     // setence 1 = "Setence 1"
@@ -44,7 +130,7 @@ public class src {
     // etc ....
     public static Map<Integer, String> GetSetencesDictionary() {
 
-        Map<Integer, String> setencesDictionary = new HashMap<Integer, String>();
+        Map<Integer, String> setencesDictionary = new HashMap<>();
 
         for (int i = 0; i < setences.size(); i++) {
             setencesDictionary.put(i, setences.get(i));
@@ -57,7 +143,7 @@ public class src {
     // setence 2 = ["wordx", "wordy", ... "wordn"]
     // etc ....
     public static Map<Integer, ArrayList<String>> GetSetenceWordDictionary(Map<Integer, String> setencesDictionary){
-        Map<Integer, ArrayList<String>> SetenceWordDictionary = new HashMap<Integer, ArrayList<String>>();
+        Map<Integer, ArrayList<String>> SetenceWordDictionary = new HashMap<>();
         for(Integer setenceNb : setencesDictionary.keySet())
         {
             Scanner s = new Scanner(setencesDictionary.get(setenceNb));
@@ -124,7 +210,7 @@ public class src {
 
     //maxSim(P, S) = max Pi ∈ S pSim(P, Pi) 
     // Calculate the maximum similarity between a setence and a list of setence 
-    public static double MaxSim(ArrayList<String> setence, ArrayList<ArrayList<String>> setences){
+    public static double MaxSim(ArrayList<String> setence, Collection<ArrayList<String>> setences){
         double max = Double.NEGATIVE_INFINITY;
         for(ArrayList<String> s : setences) // Pi ∈ S
         {
