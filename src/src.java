@@ -49,7 +49,7 @@ public class src {
     public static void WriteResume(ArrayList<String> resume, String files) {
 
         try {
-            
+
             File myObj = new File(files + "_r.txt");
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
@@ -84,7 +84,7 @@ public class src {
                     min = integer;
                 }
             }
-            resume.add(setencesDictionary.get(min));
+            resume.add(min + " : " + setencesDictionary.get(min));
             temp.remove(min);
         }
 
@@ -98,7 +98,7 @@ public class src {
                 double max = Double.NEGATIVE_INFINITY;
                 int index = 0;
                 for(int i = 1; i < setenceWordDictionary.size(); i++){
-                    double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(1));
+                    double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(0));
                     if(score > max){
                         max = score;
                         index = i; 
@@ -111,7 +111,7 @@ public class src {
                 int index = 0;
                 for(int i = 1; i < setenceWordDictionary.size(); i++){
                     if(resumeSetenceDictionary.get(i) == null){
-                        double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(1)) - (1-lambda) * MaxSim(setenceWordDictionary.get(i), resumeSetenceDictionary.values());
+                        double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(0)) - (1-lambda) * MaxSim(setenceWordDictionary.get(i), resumeSetenceDictionary.values());
                         if(score > max){
                             max = score;
                             index = i;
@@ -151,7 +151,10 @@ public class src {
             ArrayList<String> setence = new ArrayList<>();
             while (s.hasNext())
             {
-                setence.add(s.next());
+                String word = s.next();
+                if(word.length() > 0){
+                    setence.add(word);
+                }
             }
             SetenceWordDictionary.put(setenceNb, setence);
         }
@@ -230,7 +233,7 @@ public class src {
             Scanner s = new Scanner(filename, "UTF-8");
             String setence = "";
             while (s.hasNext()) {
-                String word = s.next();
+                String word = s.next().toUpperCase();
 
                 if (Arrays.stream(periodWords).anyMatch(word::equals)) {
                     setence = setence + word + " ";
