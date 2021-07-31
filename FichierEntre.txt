@@ -1,0 +1,2 @@
+Texte1.txt resultat1.txt
+Texte2.txt
