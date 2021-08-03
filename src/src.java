@@ -27,7 +27,7 @@ public class src {
 
     public static void main(String[] args) throws Exception {
         Scanner myObj = new Scanner(System.in); // Create a Scanner object
-        System.out.println("Enter file to analyse ex (eval.txt):");
+        System.out.println("Enter file to analyse ex (FichierEntre.txt):");
 
         String files = myObj.nextLine(); // Read user input
         System.out.println("file is: " + files); // Output user input

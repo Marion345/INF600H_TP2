@@ -1,0 +1,15 @@
+L’objectif de cet article est de s’interroger sur les modalités des choix qui ont présidé à l’établissement des premières sociétés sédentaires dans le bassin de Paris. L’étude, menée à partir d’une zone test bien documentée, porte sur des sites d’habitat du Rubané récent du Bassin parisien (RRBP) et du Villeneuve-Saint-Germain (VSG). 
+L’ensemble du corpus retenu s’élève à 35 villages. 
+Après une analyse de la distribution des sites laissant entrevoir un maillage territorial à l’échelle régionale au Rubané, la seconde étape a été la définition de critères descriptifs quant aux choix de ces implantations. 
+On a ainsi tenté d’aller au-delà des critères retenus généralement en sitologie et de définir un territoire de type finage. 
+On a ainsi envisagé la possible mise en place d’un système d’exploitation différentiel du milieu, avec une emprise plus «intensive » des alentours du site et «extensive » du territoire plus lointain. 
+Cette configuration semble par ailleurs en accord avec les études palynologiques qui ont montré que l’impact des activités anthropiques sur le couvert forestier n’est pas décelable au Néolithique ancien, en l’état actuel des recherches au-delà des alentours immédiats des sites. 
+Le traitement quantitatif de l’information spatiale via un traitement SIG et une analyse multivariée montrent que si l’environnement semble jouer un rôle considérable, il n’existe en aucun cas un déterminisme simple dans les choix d’implantation. 
+Cette analyse a aussi permis de dégager une dynamique de peuplement relativement complexe, où les choix d’implantations au Rubané sont relativement diversifiés assez tôt dans la séquence et ne se limitent pas, dans l’Aisne, aux grandes terrasses non inondables de la vallée principale. 
+Avec le VSG, on assiste à un processus d’expansion très net et le plus souvent sans continuité avec l’occupation rubanée. 
+En effet, les sites VSG implantés en continuité spatiale avec les sites rubanés ou à proximité (moins de 200 m) sont les cas les plus rares. 
+L’essentiel reste donc des créations de sites. Les choix d’implantation sont remarquablement diversifiés par rapport au Rubané. 
+À petite échelle, il s’agit d’espaces à ce jour (dans l’état actuel des fouilles) jamais investis au Rubané. 
+Il ne s’agit donc pas d’une densification des espaces déjà occupés. 
+On assiste plutôt à un modèle de diffusion par expansion assez large mais contrebalancée par une emprise territoriale plus lâche. 
+Il est envisagé de poursuivre cette première définition des territoires exploitables en croisant les estimations démographiques des villages RRBP et les ressources alimentaires potentiellement disponibles (rendement des espaces propices à une mise en culture, exploitation du cheptel, part de la chasse et de la cueillette) sur les finages tels qu’ils ont été définis dans cet article.

@@ -1,2 +1,3 @@
 Texte1.txt resultat1.txt
-Texte2.txt 
+Texte2.txt resultat2.txt
+Texte3.txt resultat3.txt
