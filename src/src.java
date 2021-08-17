@@ -14,14 +14,14 @@ import java.util.Set;
 public class src {
     private static String[] endOfSetence = { ".", "!", "?" };
 
-    private static String[] periodWords = { "Mr.", "Mrs.", "Ms.", "Prof.", "Dr.", "Gen.", "Rep.", "Sen.", "St.", "Sr.",
-            "Jr.", "Ph.", "Ph.D.", "M.D.", "B.A.", "M.A.", "D.D.", "D.D.S.", "B.C.", "b.c.", "a.m.", "A.M.", "p.m.",
-            "P.M.", "A.D.", "a.d.", "B.C.E.", "C.E.", "i.e.", "etc.", "e.g.", "al." };
+    private static String[] periodWords = { "MR.", "MRS.", "MS.", "PROF.", "DR.", "GEN.", "REP.", "SEN.", "ST.", "SR.",
+            "JR.", "PH.", "PH.D.", "M.D.", "B.A.", "M.A.", "D.D.", "D.D.S.", "B.C.", "A.M.", "P.M.", "A.D.", "B.C.E."
+            ,"C.E.", "I.E.", "ETC.", "E.G.", "AL.", "FIG.", "P.", "COMM.", "PERS.", "C."};
 
-    private static Collection<ArrayList<String>> textsToAnalyse = new ArrayList<>();
-    private static ArrayList<String> setences = new ArrayList<>();
-    private static Map<Integer, ArrayList<String>> setenceWordDictionary = new HashMap<>();
-    private static Map<Integer, ArrayList<String>> resumeSetenceDictionary = new HashMap<>();
+    // private static Collection<ArrayList<String>> textsToAnalyse = new ArrayList<>();
+    // private static ArrayList<String> setences = new ArrayList<>();
+    // private static Map<Integer, ArrayList<String>> setenceWordDictionary = new HashMap<>();
+    // private static Map<Integer, ArrayList<String>> resumeSetenceDictionary = new HashMap<>();
     private static int maxWord = 125;
     private static double lambda = 0.5;
 
@@ -33,9 +33,9 @@ public class src {
         System.out.println("file is: " + files); // Output user input
         myObj.close();
 
-        textsToAnalyse = GetTexts(files);
+        Collection<ArrayList<String>> textsToAnalyse = GetTexts(files);
 
-        RunAnalyseAndResume();
+        RunAnalyseAndResume(textsToAnalyse);
 
     }
 
@@ -57,7 +57,7 @@ public class src {
     // that we have found them in the original text
     // With the dictionary we have place them with nb of setence in the texte :
     // setence associate with
-    public static ArrayList<String> GetResume(Map<Integer, String> setencesDictionary) {
+    public static ArrayList<String> GetResume(Map<Integer, String> setencesDictionary, Map<Integer, ArrayList<String>> resumeSetenceDictionary) {
         ArrayList<String> resume = new ArrayList<>();
 
         Set<Integer> temp = resumeSetenceDictionary.keySet();
@@ -80,52 +80,55 @@ public class src {
     // for each setence not already in sr we need to do it
     // if sr is empty the part after the minus will not be done
     // all the setence for the remuse are stock in resumeSetenceDictionary
-    public static void GetSetenceForResume() {
+    public static Map<Integer, ArrayList<String>> GetSetenceForResume(Map<Integer, ArrayList<String>> setenceWordDictionary) {
+        Map<Integer, ArrayList<String>> resume = new HashMap<>();
         while (maxWord > 0) {
-            if (resumeSetenceDictionary.size() == 0) {
+            if (resume.size() == 0) {
                 double max = Double.NEGATIVE_INFINITY;
                 int index = 0;
                 for (int i = 1; i < setenceWordDictionary.size(); i++) {
-                    double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(0));
+                    double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(0), setenceWordDictionary);
                     if (score > max) {
                         max = score;
                         index = i;
                     }
                 }
-                resumeSetenceDictionary.put(index, setenceWordDictionary.get(index));
+                resume.put(index, setenceWordDictionary.get(index));
                 maxWord -= setenceWordDictionary.get(index).size();
             } else {
                 double max = Double.NEGATIVE_INFINITY;
                 int index = 0;
                 for (int i = 1; i < setenceWordDictionary.size(); i++) {
-                    if (resumeSetenceDictionary.get(i) == null) {
-                        double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(0))
-                                - (1 - lambda) * MaxSim(setenceWordDictionary.get(i), resumeSetenceDictionary.values());
+                    if (resume.get(i) == null) {
+                        double score = lambda * Psim(setenceWordDictionary.get(i), setenceWordDictionary.get(0), setenceWordDictionary)
+                                - (1 - lambda) * MaxSim(setenceWordDictionary.get(i), resume.values(), setenceWordDictionary);
                         if (score > max) {
                             max = score;
                             index = i;
                         }
                     }
                 }
-                resumeSetenceDictionary.put(index, setenceWordDictionary.get(index));
+                resume.put(index, setenceWordDictionary.get(index));
                 maxWord -= setenceWordDictionary.get(index).size();
             }
         }
+        return resume;
     }
 
     // Create a summary of the file pass
     public static ArrayList<String> Resume(String fileName) throws FileNotFoundException {
         String fileNameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
         File file = new File(fileName);
-        setences = GetSetences(file);
+        
+        ArrayList<String> setences = GetSetences(file);
 
-        Map<Integer, String> setencesDictionary = GetSetencesDictionary();
+        Map<Integer, String> setencesDictionary = GetSetencesDictionary(setences);
 
-        setenceWordDictionary = GetSetenceWordDictionary(setencesDictionary);
+        Map<Integer, ArrayList<String>> setenceWordDictionary = GetSetenceWordDictionary(setencesDictionary);
 
-        GetSetenceForResume();
+        Map<Integer, ArrayList<String>> resumeSetenceDictionary = GetSetenceForResume(setenceWordDictionary);
 
-        ArrayList<String> resume = GetResume(setencesDictionary);
+        ArrayList<String> resume = GetResume(setencesDictionary, resumeSetenceDictionary);
 
         WriteResume(resume, fileNameWithoutExt);
         return resume;
@@ -135,15 +138,16 @@ public class src {
     // If we have juste a file we create the resume
     // if we have a file to resume and a result, we create the resume and analyse
     // the red2 metric
-    public static void RunAnalyseAndResume() throws Exception {
+    public static void RunAnalyseAndResume(Collection<ArrayList<String>> textsToAnalyse) throws Exception {
         for (ArrayList<String> files : textsToAnalyse) {
             maxWord = 125;
+
             if (files.size() > 0 && files.size() < 2) {
                 Resume(files.get(0));
             } else if (files.size() == 2) {
                 ArrayList<String> resume = Resume(files.get(0));
                 double f = AnalyseRed2(resume, files.get(1));
-                System.out.println("Le résumé pour le texte " + files.get(0) + " à donné une f1 = " + f);
+                System.out.println("Le résumé pour le texte " + files.get(0) + " à donné une f1 = " + f +" et un lambda de :" + lambda);
             } else {
                 throw new Exception("Cannot Have more than 2 files on the same line in the entries file");
             }
@@ -173,7 +177,7 @@ public class src {
 
     // idf(m) = log2(n / |{Pi|m ∈ Pi}|)
     // calculate the idf of a word
-    public static double GetWordIdf(String word) {
+    public static double GetWordIdf(String word, Map<Integer, ArrayList<String>> setenceWordDictionary) {
         int compteur = 0;
         for (ArrayList<String> setence : setenceWordDictionary.values()) {
             if (setence.contains(word)) {
@@ -186,13 +190,13 @@ public class src {
 
     // hSim(Ps, Pd) = (∑m∈Ps mSim(m, Pd m ) × idf(m)) / (∑m∈Ps idf(m))
     // calculate the similarity of a setence by another one
-    public static double Hsim(ArrayList<String> setence1, ArrayList<String> setence2) {
+    public static double Hsim(ArrayList<String> setence1, ArrayList<String> setence2, Map<Integer, ArrayList<String>> setenceWordDictionary) {
         double somme1 = 0;
         double somme2 = 0;
         for (String word : setence1) {
-            double idf = GetWordIdf(word);
-            somme1 = +Msim(word, setence2) * idf; // ∑m∈Ps mSim(m, Pd m ) × idf(m)
-            somme2 = +idf; // ∑m∈Ps idf(m)
+            double idf = GetWordIdf(word, setenceWordDictionary);
+            somme1 =+ Msim(word, setence2) * idf; // ∑m∈Ps mSim(m, Pd m ) × idf(m)
+            somme2 =+ idf; // ∑m∈Ps idf(m)
         }
 
         return somme1 / somme2;
@@ -212,11 +216,11 @@ public class src {
 
     // maxSim(P, S) = max Pi ∈ S pSim(P, Pi)
     // Calculate the maximum similarity between a setence and a list of setence
-    public static double MaxSim(ArrayList<String> setence, Collection<ArrayList<String>> setences) {
+    public static double MaxSim(ArrayList<String> setence, Collection<ArrayList<String>> setences, Map<Integer, ArrayList<String>> setenceWordDictionary) {
         double max = Double.NEGATIVE_INFINITY;
         for (ArrayList<String> s : setences) // Pi ∈ S
         {
-            double psim = Psim(setence, s); // pSim(P, Pi)
+            double psim = Psim(setence, s, setenceWordDictionary); // pSim(P, Pi)
             if (psim > max) {
                 max = psim; // max
             }
@@ -236,8 +240,8 @@ public class src {
 
     // pSim(P1, P2) = 1/2[hSim(P1, P2) + hSim(P2, P1)]
     // calculate the similarity of two setences
-    public static double Psim(ArrayList<String> setence1, ArrayList<String> setence2) {
-        return 0.5 * (Hsim(setence1, setence2) + Hsim(setence2, setence1));
+    public static double Psim(ArrayList<String> setence1, ArrayList<String> setence2, Map<Integer, ArrayList<String>> setenceWordDictionary) {
+        return 0.5 * (Hsim(setence1, setence2, setenceWordDictionary) + Hsim(setence2, setence1, setenceWordDictionary));
     }
 
     // #endregion
@@ -275,7 +279,7 @@ public class src {
     // setence 1 = "Setence 1"
     // setence 2 = "Setence 2"
     // etc ....
-    public static Map<Integer, String> GetSetencesDictionary() {
+    public static Map<Integer, String> GetSetencesDictionary(ArrayList<String> setences) {
 
         Map<Integer, String> setencesDictionary = new HashMap<>();
 
